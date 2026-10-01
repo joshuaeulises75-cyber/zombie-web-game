@@ -6,9 +6,9 @@
   <title>Zombie House Cleaner</title>
   <style>
     :root {
-      --bg0: #0b1320;
+      --bg0: #07101b;
       --bg1: #111827;
-      --panel: rgba(15, 23, 42, 0.92);
+      --panel: rgba(15, 23, 42, 0.94);
       --panel2: rgba(30, 41, 59, 0.9);
       --accent: #38bdf8;
       --accent2: #f59e0b;
@@ -16,296 +16,113 @@
       --success: #4ade80;
       --text: #e5eefc;
       --muted: #9fb3d1;
-      --shadow: rgba(0, 0, 0, 0.35);
+      --shadow: rgba(0, 0, 0, 0.36);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
     html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--bg0);
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
-      overflow: hidden;
+      margin: 0; width: 100%; height: 100%;
+      background: var(--bg0); color: var(--text);
+      font-family: Arial, Helvetica, sans-serif; overflow: hidden;
     }
-
-    body {
-      display: grid;
-      place-items: center;
-    }
+    body { display: grid; place-items: center; }
 
     #gameRoot {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      background: linear-gradient(180deg, #0b1320, #111827);
-      overflow: hidden;
+      position: relative; width: 100vw; height: 100vh; overflow: hidden;
+      background: radial-gradient(circle at top, #10233a 0%, #0b1320 45%, #070d18 100%);
     }
 
     .screen {
-      position: absolute;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
+      position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 10;
     }
-
-    .screen.active {
-      display: flex;
-    }
+    .screen.active { display: flex; }
 
     .panel {
-      background: var(--panel);
-      border: 2px solid rgba(156, 163, 175, 0.35);
-      border-radius: 22px;
-      box-shadow: 0 18px 38px var(--shadow);
-      backdrop-filter: blur(8px);
+      background: var(--panel); border: 2px solid rgba(156,163,175,0.35);
+      border-radius: 22px; box-shadow: 0 20px 40px var(--shadow); backdrop-filter: blur(8px);
     }
 
     .menu-panel {
-      width: min(92vw, 460px);
-      padding: 28px 22px;
-      text-align: center;
+      width: min(92vw, 460px); padding: 30px 22px; text-align: center;
     }
+    h1, h2 { margin: 0 0 16px; letter-spacing: 0.04em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); }
 
-    h1, h2 {
-      margin: 0 0 18px 0;
-      letter-spacing: 0.04em;
-    }
-
-    h1 {
-      font-size: clamp(2rem, 6vw, 3rem);
-    }
-
-    .main-btn, .back-btn, .shop-btn, .buy-btn {
-      width: 100%;
-      border: none;
-      border-radius: 14px;
-      padding: 16px 18px;
-      font-size: 1.05rem;
-      font-weight: 700;
-      cursor: pointer;
-      color: white;
-      background: linear-gradient(180deg, #2563eb, #1d4ed8);
-      box-shadow: 0 12px 20px rgba(37, 99, 235, 0.25);
+    .main-btn, .back-btn, .buy-btn {
+      width: 100%; border: none; border-radius: 14px; padding: 16px 18px;
+      font-size: 1.06rem; font-weight: 700; cursor: pointer; color: white;
+      background: linear-gradient(180deg, #2563eb, #1d4ed8); box-shadow: 0 12px 20px rgba(37,99,235,0.25);
       transition: transform 0.12s ease, opacity 0.12s ease;
     }
-
-    .main-btn:active, .back-btn:active, .shop-btn:active, .buy-btn:active {
-      transform: scale(0.98);
-    }
-
-    .main-btn + .main-btn {
-      margin-top: 14px;
-    }
+    .main-btn:active, .back-btn:active, .buy-btn:active { transform: scale(0.98); }
+    .main-btn + .main-btn { margin-top: 14px; }
 
     .shop-panel {
-      width: min(94vw, 760px);
-      padding: 18px 18px 12px;
+      width: min(94vw, 760px); padding: 18px 18px 12px;
     }
-
     .shop-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding: 6px 6px 10px;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 6px 6px 10px;
     }
-
-    .coins {
-      font-weight: 700;
-      color: #fbbf24;
-      font-size: 1.1rem;
-    }
-
+    .coins { font-weight: 700; color: #fbbf24; font-size: 1.1rem; }
     .shop-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(150px, 1fr));
-      gap: 12px;
-      margin-top: 10px;
-      margin-bottom: 10px;
+      display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 12px; margin: 10px 0;
     }
-
     .shop-item {
-      background: var(--panel2);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      border-radius: 14px;
-      padding: 12px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      background: var(--panel2); border: 1px solid rgba(148,163,184,0.3); border-radius: 14px;
+      padding: 12px 10px; display: flex; flex-direction: column; gap: 10px;
     }
-
-    .shop-item strong {
-      font-size: 1.05rem;
-    }
-
+    .shop-item strong { font-size: 1.05rem; }
     .buy-btn {
-      margin: 0;
-      padding: 12px 10px;
-      font-size: 0.96rem;
-      background: linear-gradient(180deg, #10b981, #059669);
+      margin: 0; padding: 12px 10px; font-size: 0.96rem; background: linear-gradient(180deg, #10b981, #059669);
       box-shadow: none;
     }
+    .buy-btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+    .back-btn { margin-top: 6px; background: linear-gradient(180deg, #334155, #1f2937); }
 
-    .buy-btn[disabled] {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .back-btn {
-      margin-top: 6px;
-      background: linear-gradient(180deg, #334155, #1f2937);
-    }
-
-    #gameScreen {
-      z-index: 0;
-      background: linear-gradient(180deg, #0b1320, #0f172a);
-    }
-
-    #gameCanvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      background: linear-gradient(180deg, #0b1320, #111827);
-    }
+    #gameScreen { z-index: 0; background: linear-gradient(180deg, #0b1320, #0f172a); }
+    #gameCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
     #hud {
-      position: absolute;
-      inset: 0 0 auto 0;
-      display: flex;
-      justify-content: space-between;
-      padding: 14px 16px;
-      pointer-events: none;
-      font-weight: 700;
-      z-index: 5;
+      position: absolute; inset: 0 0 auto 0; display: flex; justify-content: space-between; padding: 14px 16px;
+      pointer-events: none; font-weight: 700; z-index: 5;
     }
-
     .hud-box {
-      background: rgba(15, 23, 42, 0.55);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      border-radius: 12px;
-      padding: 8px 10px;
-      font-size: clamp(0.82rem, 2vw, 1.05rem);
+      background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148,163,184,0.2); border-radius: 12px;
+      padding: 8px 10px; font-size: clamp(0.8rem, 2vw, 1.05rem);
     }
-
-    .hud-box.right {
-      text-align: right;
-      max-width: 52vw;
-    }
-
-    #missionText {
-      display: block;
-      margin-top: 4px;
-      font-size: clamp(0.72rem, 1.7vw, 0.95rem);
-    }
+    .hud-box.right { text-align: right; max-width: 52vw; }
+    #missionText { display: block; margin-top: 4px; font-size: clamp(0.72rem, 1.7vw, 0.95rem); }
 
     #touchControls {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 210px;
-      pointer-events: none;
-      z-index: 8;
+      position: absolute; left: 0; right: 0; bottom: 0; height: 210px; pointer-events: none; z-index: 8;
     }
-
     #movePad {
-      position: absolute;
-      left: 20px;
-      bottom: 18px;
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.09);
-      border: 1px solid rgba(255,255,255,0.18);
-      pointer-events: auto;
-      overflow: hidden;
+      position: absolute; left: 20px; bottom: 18px; width: 150px; height: 150px; border-radius: 50%;
+      background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.18); pointer-events: auto; overflow: hidden;
     }
-
     #padBase {
-      position: absolute;
-      left: 25px;
-      top: 25px;
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.16);
-      border: 1px solid rgba(255,255,255,0.2);
+      position: absolute; left: 25px; top: 25px; width: 100px; height: 100px; border-radius: 50%;
+      background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.2);
     }
-
     #padKnob {
-      position: absolute;
-      left: 55px;
-      top: 55px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.8);
-      box-shadow: 0 8px 12px rgba(0,0,0,0.2);
-      transition: transform 0.05s ease;
+      position: absolute; left: 55px; top: 55px; width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,0.8); box-shadow: 0 8px 12px rgba(0,0,0,0.2); transition: transform 0.05s ease;
     }
-
     #actionButtons {
-      position: absolute;
-      right: 14px;
-      bottom: 20px;
-      display: flex;
-      gap: 12px;
-      pointer-events: auto;
+      position: absolute; right: 14px; bottom: 20px; display: flex; gap: 12px; pointer-events: auto;
     }
-
     #actionButtons button {
-      border: none;
-      border-radius: 14px;
-      min-width: 118px;
-      padding: 18px 18px;
-      font-size: 1.02rem;
-      font-weight: 700;
-      color: white;
-      background: linear-gradient(180deg, #ef4444, #dc2626);
-      box-shadow: 0 12px 18px rgba(239,68,68,0.22);
+      border: none; border-radius: 14px; min-width: 118px; padding: 18px 18px; font-size: 1.02rem; font-weight: 700;
+      color: white; background: linear-gradient(180deg, #ef4444, #dc2626); box-shadow: 0 12px 18px rgba(239,68,68,0.22);
     }
-
-    #aimBtn {
-      background: linear-gradient(180deg, #f59e0b, #d97706) !important;
-      min-width: 100px !important;
-    }
+    #aimBtn { background: linear-gradient(180deg, #f59e0b, #d97706) !important; min-width: 100px !important; }
 
     @media (max-width: 640px) {
-      .shop-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      #actionButtons button {
-        min-width: 94px;
-        padding: 14px 10px;
-        font-size: 0.9rem;
-      }
-
-      #movePad {
-        width: 120px;
-        height: 120px;
-      }
-
-      #padBase {
-        left: 18px;
-        top: 18px;
-        width: 84px;
-        height: 84px;
-      }
-
-      #padKnob {
-        left: 42px;
-        top: 42px;
-        width: 34px;
-        height: 34px;
-      }
+      .shop-grid { grid-template-columns: 1fr 1fr; }
+      #actionButtons button { min-width: 94px; padding: 14px 10px; font-size: 0.9rem; }
+      #movePad { width: 120px; height: 120px; }
+      #padBase { left: 18px; top: 18px; width: 84px; height: 84px; }
+      #padKnob { left: 42px; top: 42px; width: 34px; height: 34px; }
     }
   </style>
 </head>
@@ -392,17 +209,19 @@
       screen: 'menu',
       coins: 250,
       ownedWeapons: ['Pistol'],
-      ownedAllies: [],
+      ownedAllies: ['Medic'],
       currentWeapon: 'Pistol',
       score: 0,
       rescued: 0,
       mission: 'Rescata civiles y limpia la casa',
+      level: 1,
+      wave: 1,
       gameOver: false,
-      levelComplete: false,
       shootPressed: false,
       aimPressed: false,
       moveDir: 0,
       aimY: -1,
+      killCount: 0,
     };
 
     const world = {
@@ -413,6 +232,9 @@
       allies: [],
       particles: [],
       house: { x: 300, y: 120, w: 680, h: 420 },
+      levelTimer: 0,
+      message: '',
+      messageTimer: 0,
     };
 
     const weapons = {
@@ -439,7 +261,6 @@
 
     function renderShop() {
       shopList.innerHTML = '';
-
       shopItems.forEach(item => {
         const div = document.createElement('div');
         div.className = 'shop-item';
@@ -450,10 +271,7 @@
         const btn = document.createElement('button');
         btn.className = 'buy-btn';
 
-        const isOwned = item.type === 'weapon'
-          ? state.ownedWeapons.includes(item.name)
-          : state.ownedAllies.includes(item.name);
-
+        const isOwned = item.type === 'weapon' ? state.ownedWeapons.includes(item.name) : state.ownedAllies.includes(item.name);
         btn.textContent = isOwned ? 'Comprado' : `Comprar (${item.cost})`;
         btn.disabled = isOwned || state.coins < item.cost;
         btn.addEventListener('click', () => buyItem(item));
@@ -462,7 +280,6 @@
         div.appendChild(btn);
         shopList.appendChild(div);
       });
-
       coinsDisplay.textContent = state.coins;
     }
 
@@ -474,67 +291,60 @@
         state.ownedWeapons.push(item.name);
         state.currentWeapon = item.name;
       }
-
       if (item.type === 'ally') {
         if (state.ownedAllies.includes(item.name)) return;
         if (state.coins < item.cost) return;
         state.coins -= item.cost;
         state.ownedAllies.push(item.name);
       }
-
       renderShop();
       updateHud();
     }
 
+    function setMessage(text, duration = 2.2) {
+      world.message = text;
+      world.messageTimer = duration;
+    }
+
     function startGame() {
-      resetWorld();
+      state.score = 0;
+      state.rescued = 0;
+      state.level = 1;
+      state.wave = 1;
+      state.gameOver = false;
+      state.killCount = 0;
+      state.mission = 'Rescata civiles y limpia la casa';
+      resetWave();
       showScreen('game');
     }
 
-    function resetWorld() {
-      state.score = 0;
-      state.rescued = 0;
-      state.levelComplete = false;
-      state.mission = 'Rescata civiles y limpia la casa';
-      state.gameOver = false;
-
+    function resetWave() {
       world.player = {
-        x: 140,
-        y: 470,
-        w: 30,
-        h: 62,
-        hp: 100,
-        fireCooldown: 0,
-        speed: 230,
-        facing: 1,
+        x: 140, y: 470, w: 30, h: 62, hp: 100, fireCooldown: 0, speed: 230, facing: 1,
       };
-
       world.bullets = [];
       world.zombies = [];
       world.civilians = [];
       world.allies = [];
       world.particles = [];
+      world.levelTimer = 0;
+      world.message = '';
+      world.messageTimer = 0;
 
-      spawnZombies(7);
-      spawnCivilians(3);
-      spawnAllies();
-      updateHud();
-    }
-
-    function spawnZombies(count) {
-      for (let i = 0; i < count; i++) {
+      const zombieCount = 4 + state.level * 2;
+      for (let i = 0; i < zombieCount; i++) {
         let type = 'common';
         const roll = Math.random();
-        if (roll > 0.82) type = 'runner';
-        else if (roll > 0.65) type = 'tank';
-        else if (roll > 0.45) type = 'spitter';
+        if (roll > 0.84) type = 'runner';
+        else if (roll > 0.68) type = 'tank';
+        else if (roll > 0.48) type = 'spitter';
 
-        const hp = type === 'tank' ? 8 : type === 'runner' ? 2 : type === 'spitter' ? 4 : 3;
+        const hp = type === 'tank' ? 9 : type === 'runner' ? 2 : type === 'spitter' ? 4 : 3;
         world.zombies.push({
-          x: 620 + i * 80,
+          x: 680 + i * 75,
           y: 470,
-          w: 26,
-          h: 52,
+          w: 28,
+          h: 54,
           hp,
           type,
           speed: type === 'runner' ? 1.8 : type === 'tank' ? 0.9 : 1.2,
@@ -542,39 +352,31 @@
           color: type === 'runner' ? '#facc15' : type === 'tank' ? '#ef4444' : type === 'spitter' ? '#a855f7' : '#22c55e',
         });
       }
-    }
 
-    function spawnCivilians(count) {
-      for (let i = 0; i < count; i++) {
-        world.civilians.push({
-          x: 760 + i * 110,
-          y: 470,
-          w: 25,
-          h: 46,
-          rescued: false,
-          color: '#7dd3fc',
-        });
+      const civilianCount = 2 + state.level;
+      for (let i = 0; i < civilianCount; i++) {
+        world.civilians.push({ x: 820 + i * 95, y: 470, w: 24, h: 46, rescued: false, color: '#7dd3fc' });
       }
-    }
 
-    function spawnAllies() {
       const names = state.ownedAllies.length ? state.ownedAllies : ['Medic'];
-      names.forEach((name, index) => {
-        const ally = {
+      names.forEach((name, idx) => {
+        const personality = name === 'Tank' ? 'brave' : name === 'Sniper' ? 'cautious' : 'brave';
+        world.allies.push({
           name,
-          x: 200 + index * 70,
+          x: 210 + idx * 75,
           y: 470,
           w: 26,
           h: 50,
           hp: 50,
-          personality: name === 'Tank' ? 'brave' : name === 'Sniper' ? 'cautious' : 'brave',
+          personality,
           fear: 0,
           talk: '',
           abandoned: false,
           color: name === 'Medic' ? '#4ade80' : name === 'Sniper' ? '#a78bfa' : '#fbbf24',
-        };
-        world.allies.push(ally);
+        });
       });
+
+      updateHud();
     }
 
     function updateHud() {
@@ -589,21 +391,13 @@
 
     function fireBullet(fromEnemy = false) {
       const player = world.player;
+      if (!player) return;
       const weapon = weapons[state.currentWeapon] || weapons.Pistol;
-
       if (!fromEnemy) {
-        const dirX = player.facing;
-        const dirY = state.aimY;
         world.bullets.push({
-          x: player.x + 24,
-          y: player.y + 20,
-          r: 7,
-          dirX,
-          dirY,
-          speed: weapon.speed,
-          damage: weapon.damage,
-          color: '#facc15',
-          enemy: false,
+          x: player.x + 24, y: player.y + 20, r: 7,
+          dirX: player.facing, dirY: state.aimY,
+          speed: weapon.speed, damage: weapon.damage, color: '#facc15', enemy: false,
         });
         player.fireCooldown = weapon.fireRate;
       }
@@ -611,31 +405,19 @@
 
     function shootEnemyProjectile(z) {
       world.bullets.push({
-        x: z.x,
-        y: z.y,
-        r: 8,
-        dirX: Math.sign(world.player.x - z.x) || 1,
-        dirY: 0,
-        speed: 260,
-        damage: 10,
-        color: '#a855f7',
-        enemy: true,
+        x: z.x, y: z.y, r: 8,
+        dirX: Math.sign(world.player.x - z.x) || 1, dirY: 0,
+        speed: 260, damage: 10, color: '#a855f7', enemy: true,
       });
     }
 
     function updatePlayer() {
       const p = world.player;
       if (!p) return;
-
       p.x += state.moveDir * p.speed * 0.016;
       p.x = Math.max(40, Math.min(1180, p.x));
-
       if (state.moveDir !== 0) p.facing = state.moveDir > 0 ? 1 : -1;
-
-      if (state.shootPressed && p.fireCooldown <= 0) {
-        fireBullet(false);
-      }
-
+      if (state.shootPressed && p.fireCooldown <= 0) fireBullet(false);
       p.fireCooldown = Math.max(0, p.fireCooldown - 0.016);
     }
 
@@ -649,7 +431,7 @@
         if (b.enemy) {
           if (Math.abs(b.x - world.player.x) < 18 && Math.abs(b.y - world.player.y) < 18) {
             world.player.hp = Math.max(0, world.player.hp - b.damage);
-            spawnParticles(b.x, b.y, '#f472b6', 14);
+            spawnParticles(b.x, b.y, '#f472b6', 12);
             return false;
           }
         } else {
@@ -657,10 +439,12 @@
             const z = world.zombies[i];
             if (Math.abs(b.x - z.x) < 18 && Math.abs(b.y - z.y) < 18) {
               z.hp -= b.damage;
-              spawnParticles(b.x, b.y, '#facc15', 8);
+              spawnParticles(b.x, b.y, '#facc15', 7);
               if (z.hp <= 0) {
                 world.zombies.splice(i, 1);
                 state.score += z.type === 'tank' ? 30 : z.type === 'runner' ? 20 : 15;
+                state.killCount += 1;
+                setMessage('¡Zombi eliminado!', 1.2);
               }
               return false;
             }
@@ -678,19 +462,21 @@
         z.x += dir * z.speed * 1.3;
         z.attackCooldown = Math.max(0, z.attackCooldown - 0.016);
 
-        if (Math.abs(world.player.x - z.x) < 28 && z.attackCooldown <= 0) {
-          world.player.hp = Math.max(0, world.player.hp - (z.type === 'tank' ? 24 : z.type === 'runner' ? 16 : 10));
-          z.attackCooldown = z.type === 'runner' ? 0.7 : z.type === 'tank' ? 1.5 : 1.0;
+        if (Math.abs(world.player.x - z.x) < 30 && z.attackCooldown <= 0) {
+          world.player.hp = Math.max(0, world.player.hp - (z.type === 'tank' ? 26 : z.type === 'runner' ? 18 : 10));
+          z.attackCooldown = z.type === 'runner' ? 0.7 : z.type === 'tank' ? 1.6 : 1.0;
           spawnParticles(world.player.x, world.player.y, '#fb7185', 10);
+          setMessage('¡Te están atacando!', 0.8);
         }
 
-        if (z.type === 'spitter' && Math.abs(world.player.x - z.x) < 260 && Math.random() < 0.013) {
+        if (z.type === 'spitter' && Math.abs(world.player.x - z.x) < 260 && Math.random() < 0.014) {
           shootEnemyProjectile(z);
         }
       });
     }
 
     function updateCivilians() {
+      const need = Math.min(2 + state.level, 5);
       world.civilians.forEach(c => {
         if (c.rescued) return;
         if (Math.abs(world.player.x - c.x) < 30 && Math.abs(world.player.y - c.y) < 30) {
@@ -698,16 +484,26 @@
           state.rescued += 1;
           state.score += 100;
           state.coins += 50;
-          state.mission = 'Civil salvado';
+          state.mission = 'Civil rescatado';
           spawnParticles(c.x, c.y, '#7dd3fc', 20);
+          setMessage('¡Civil rescatado!', 1.1);
         }
       });
 
-      if (!state.levelComplete && world.zombies.length === 0 && state.rescued >= 2) {
-        state.levelComplete = true;
-        state.mission = 'Casa limpia';
-        state.coins += 200;
+      if (!state.gameOver && world.zombies.length === 0 && state.rescued >= need) {
+        state.level += 1;
         state.score += 250;
+        state.coins += 200;
+        state.mission = 'Nivel completado';
+        setMessage('¡Nivel completado!', 1.5);
+        if (state.level > 3) {
+          state.mission = 'Victoria total';
+          setMessage('¡Victoria total!', 2.8);
+          state.gameOver = true;
+          showScreen('menu');
+        } else {
+          setTimeout(() => resetWave(), 800);
+        }
       }
     }
 
@@ -722,27 +518,16 @@
 
         if (nearest) {
           const dist = Math.abs(a.x - nearest.x);
-          if (dist < 200) {
-            a.fear = Math.min(100, a.fear + 2.4);
-          } else {
-            a.fear = Math.max(0, a.fear - 1.2);
-          }
+          if (dist < 200) a.fear = Math.min(100, a.fear + 2.2);
+          else a.fear = Math.max(0, a.fear - 1.2);
 
-          if (a.name === 'Medic') {
-            if (world.player.hp < 70 && Math.abs(a.x - world.player.x) < 80) {
-              a.talk = '¡Te curo!';
-              world.player.hp = Math.min(100, world.player.hp + 2.2);
-            } else if (dist < 130) {
-              a.talk = a.personality === 'brave' ? '!A por ellos!' : 'Cuidado...';
-            }
-          }
-
-          if (a.name === 'Sniper' && dist > 120 && Math.random() < 0.035) {
+          if (a.name === 'Medic' && world.player.hp < 75 && Math.abs(a.x - world.player.x) < 80) {
+            a.talk = '¡Te curo!';
+            world.player.hp = Math.min(100, world.player.hp + 2.5);
+          } else if (a.name === 'Sniper' && dist > 120 && Math.random() < 0.035) {
             a.talk = 'Punto limpio';
             world.bullets.push({ x: a.x, y: a.y, r: 6, dirX: Math.sign(nearest.x - a.x) || 1, dirY: 0, speed: 760, damage: 2, color: '#c4b5fd', enemy: false });
-          }
-
-          if (a.name === 'Tank' && dist < 150 && Math.random() < 0.022) {
+          } else if (a.name === 'Tank' && dist < 160 && Math.random() < 0.028) {
             a.talk = '¡Carga!';
           }
         } else {
@@ -752,12 +537,14 @@
         if (a.fear > 90) {
           a.abandoned = true;
           a.talk = '¡Me voy!';
+          setMessage('Un aliado huyó por miedo', 1.0);
         } else {
           if (nearest) {
             const dir = Math.sign(nearest.x - a.x) || 1;
-            a.x += dir * (a.name === 'Tank' ? 1.2 : a.name === 'Sniper' ? 0.8 : 1.0);
+            const speedMod = a.name === 'Tank' ? 1.2 : a.name === 'Sniper' ? 0.8 : 1.0;
+            a.x += dir * speedMod;
           }
-          if (Math.random() < 0.02) {
+          if (Math.random() < 0.025) {
             a.talk = a.personality === 'brave' ? '¡Vamos! ¡No nos dan miedo!' : a.personality === 'cautious' ? 'Cuidado a la distancia' : '¿Seguro que esto es seguro?';
           }
         }
@@ -766,23 +553,14 @@
 
     function updateParticles() {
       world.particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= 1;
+        p.x += p.vx; p.y += p.vy; p.life -= 1;
       });
       world.particles = world.particles.filter(p => p.life > 0);
     }
 
     function spawnParticles(x, y, color, count) {
       for (let i = 0; i < count; i++) {
-        world.particles.push({
-          x,
-          y,
-          vx: (Math.random() - 0.5) * 6,
-          vy: (Math.random() - 0.5) * 6,
-          life: 18,
-          color,
-        });
+        world.particles.push({ x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 18, color });
       }
     }
 
@@ -794,10 +572,16 @@
       updateCivilians();
       updateAllies();
       updateParticles();
+      if (world.messageTimer > 0) {
+        world.messageTimer -= 0.016;
+      } else {
+        world.message = '';
+      }
 
       if (world.player.hp <= 0) {
-        state.mission = 'Has muerto, reiniciando nivel';
-        resetWorld();
+        state.mission = 'Has muerto';
+        setMessage('¡Te han matado! Reiniciando...', 1.5);
+        setTimeout(() => resetWave(), 900);
       }
 
       updateHud();
@@ -845,7 +629,7 @@
         ctx.fillStyle = '#111';
         ctx.fillRect(z.x, z.y - 8, z.w, 6);
         ctx.fillStyle = '#4ade80';
-        ctx.fillRect(z.x, z.y - 8, z.w * (z.hp / (z.type === 'tank' ? 8 : z.type === 'runner' ? 2 : z.type === 'spitter' ? 4 : 3)), 6);
+        ctx.fillRect(z.x, z.y - 8, z.w * (z.hp / (z.type === 'tank' ? 9 : z.type === 'runner' ? 2 : z.type === 'spitter' ? 4 : 3)), 6);
       });
     }
 
@@ -865,7 +649,7 @@
         if (a.talk) {
           ctx.fillStyle = '#fff';
           ctx.font = '12px Arial';
-          ctx.fillText(a.talk, a.x - 16, a.y - 16);
+          ctx.fillText(a.talk, a.x - 16, a.y - 18);
         }
       });
     }
@@ -877,6 +661,17 @@
       });
     }
 
+    function drawMessage() {
+      if (!world.message) return;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+      ctx.fillRect(420, 20, 440, 44);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 22px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(world.message, canvas.width / 2, 50);
+      ctx.textAlign = 'left';
+    }
+
     function render() {
       drawBackground();
       drawPlayer();
@@ -885,6 +680,7 @@
       drawCivilians();
       drawAllies();
       drawParticles();
+      drawMessage();
     }
 
     function gameLoop() {
@@ -901,7 +697,6 @@
         if (e.code === 'ArrowDown' || e.code === 'KeyS') state.aimY = 1;
         if (e.code === 'Space') state.shootPressed = true;
       });
-
       window.addEventListener('keyup', (e) => {
         if (e.code === 'ArrowLeft' || e.code === 'KeyA' || e.code === 'ArrowRight' || e.code === 'KeyD') state.moveDir = 0;
         if (e.code === 'Space') state.shootPressed = false;
@@ -927,27 +722,11 @@
       }
 
       movePad.addEventListener('pointerdown', (e) => {
-        dragging = true;
-        movePad.setPointerCapture(e.pointerId);
-        updatePad(e.clientX, e.clientY);
+        dragging = true; movePad.setPointerCapture(e.pointerId); updatePad(e.clientX, e.clientY);
       });
-
-      movePad.addEventListener('pointermove', (e) => {
-        if (dragging) updatePad(e.clientX, e.clientY);
-      });
-
-      movePad.addEventListener('pointerup', () => {
-        dragging = false;
-        state.moveDir = 0;
-        state.aimY = -1;
-        padKnob.style.transform = 'translate(0px, 0px)';
-      });
-
-      movePad.addEventListener('pointerleave', () => {
-        dragging = false;
-        state.moveDir = 0;
-        padKnob.style.transform = 'translate(0px, 0px)';
-      });
+      movePad.addEventListener('pointermove', (e) => { if (dragging) updatePad(e.clientX, e.clientY); });
+      movePad.addEventListener('pointerup', () => { dragging = false; state.moveDir = 0; state.aimY = -1; padKnob.style.transform = 'translate(0px, 0px)'; });
+      movePad.addEventListener('pointerleave', () => { dragging = false; state.moveDir = 0; padKnob.style.transform = 'translate(0px, 0px)'; });
 
       aimBtn.addEventListener('pointerdown', () => { state.aimPressed = true; state.aimY = -1; });
       aimBtn.addEventListener('pointerup', () => { state.aimPressed = false; });
