@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Zombie House Cleaner</title>
+  <style>
+    :root {
+      --bg0: #0b1320;
+      --bg1: #111827;
+      --panel: rgba(15, 23, 42, 0.92);
+      --panel2: rgba(30, 41, 59, 0.9);
+      --accent: #38bdf8;
+      --accent2: #f59e0b;
+      --danger: #ef4444;
+      --success: #4ade80;
+      --text: #e5eefc;
+      --muted: #9fb3d1;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg0);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    #gameRoot {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(180deg, #0b1320, #111827);
+      overflow: hidden;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 2px solid rgba(156, 163, 175, 0.35);
+      border-radius: 22px;
+      box-shadow: 0 18px 38px var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .menu-panel {
+      width: min(92vw, 460px);
+      padding: 28px 22px;
+      text-align: center;
+    }
+
+    h1, h2 {
+      margin: 0 0 18px 0;
+      letter-spacing: 0.04em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3rem);
+    }
+
+    .main-btn, .back-btn, .shop-btn, .buy-btn {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 16px 18px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(180deg, #2563eb, #1d4ed8);
+      box-shadow: 0 12px 20px rgba(37, 99, 235, 0.25);
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+
+    .main-btn:active, .back-btn:active, .shop-btn:active, .buy-btn:active {
+      transform: scale(0.98);
+    }
+
+    .main-btn + .main-btn {
+      margin-top: 14px;
+    }
+
+    .shop-panel {
+      width: min(94vw, 760px);
+      padding: 18px 18px 12px;
+    }
+
+    .shop-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 6px 10px;
+    }
+
+    .coins {
+      font-weight: 700;
+      color: #fbbf24;
+      font-size: 1.1rem;
+    }
+
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .shop-item {
+      background: var(--panel2);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 14px;
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .shop-item strong {
+      font-size: 1.05rem;
+    }
+
+    .buy-btn {
+      margin: 0;
+      padding: 12px 10px;
+      font-size: 0.96rem;
+      background: linear-gradient(180deg, #10b981, #059669);
+      box-shadow: none;
+    }
+
+    .buy-btn[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .back-btn {
+      margin-top: 6px;
+      background: linear-gradient(180deg, #334155, #1f2937);
+    }
+
+    #gameScreen {
+      z-index: 0;
+      background: linear-gradient(180deg, #0b1320, #0f172a);
+    }
+
+    #gameCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: linear-gradient(180deg, #0b1320, #111827);
+    }
+
+    #hud {
+      position: absolute;
+      inset: 0 0 auto 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 16px;
+      pointer-events: none;
+      font-weight: 700;
+      z-index: 5;
+    }
+
+    .hud-box {
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: clamp(0.82rem, 2vw, 1.05rem);
+    }
+
+    .hud-box.right {
+      text-align: right;
+      max-width: 52vw;
+    }
+
+    #missionText {
+      display: block;
+      margin-top: 4px;
+      font-size: clamp(0.72rem, 1.7vw, 0.95rem);
+    }
+
+    #touchControls {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 210px;
+      pointer-events: none;
+      z-index: 8;
+    }
+
+    #movePad {
+      position: absolute;
+      left: 20px;
+      bottom: 18px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.18);
+      pointer-events: auto;
+      overflow: hidden;
+    }
+
+    #padBase {
+      position: absolute;
+      left: 25px;
+      top: 25px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    #padKnob {
+      position: absolute;
+      left: 55px;
+      top: 55px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.8);
+      box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+      transition: transform 0.05s ease;
+    }
+
+    #actionButtons {
+      position: absolute;
+      right: 14px;
+      bottom: 20px;
+      display: flex;
+      gap: 12px;
+      pointer-events: auto;
+    }
+
+    #actionButtons button {
+      border: none;
+      border-radius: 14px;
+      min-width: 118px;
+      padding: 18px 18px;
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(180deg, #ef4444, #dc2626);
+      box-shadow: 0 12px 18px rgba(239,68,68,0.22);
+    }
+
+    #aimBtn {
+      background: linear-gradient(180deg, #f59e0b, #d97706) !important;
+      min-width: 100px !important;
+    }
+
+    @media (max-width: 640px) {
+      .shop-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      #actionButtons button {
+        min-width: 94px;
+        padding: 14px 10px;
+        font-size: 0.9rem;
+      }
+
+      #movePad {
+        width: 120px;
+        height: 120px;
+      }
+
+      #padBase {
+        left: 18px;
+        top: 18px;
+        width: 84px;
+        height: 84px;
+      }
+
+      #padKnob {
+        left: 42px;
+        top: 42px;
+        width: 34px;
+        height: 34px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="gameRoot">
+    <div id="menuScreen" class="screen active">
+      <div class="panel menu-panel">
+        <h1>Zombie House Cleaner</h1>
+        <button id="playBtn" class="main-btn">Jugar</button>
+        <button id="shopBtn" class="main-btn">Tienda</button>
+        <button id="quitBtn" class="main-btn">Salir</button>
+      </div>
+    </div>
+
+    <div id="shopScreen" class="screen">
+      <div class="panel shop-panel">
+        <div class="shop-header">
+          <h2>Tienda</h2>
+          <div class="coins">Coins: <span id="coinsDisplay">250</span></div>
+        </div>
+        <div id="shopList" class="shop-grid"></div>
+        <button id="backBtn" class="back-btn">Volver</button>
+      </div>
+    </div>
+
+    <div id="gameScreen" class="screen">
+      <div id="hud">
+        <div class="hud-box">
+          <div>Score: <span id="scoreDisplay">0</span></div>
+          <div>Coins: <span id="hudCoins">250</span></div>
+          <div>HP: <span id="hpDisplay">100</span></div>
+          <div>Arma: <span id="weaponDisplay">Pistol</span></div>
+        </div>
+        <div class="hud-box right">
+          <div>Aliados: <span id="allyDisplay">0</span></div>
+          <span id="missionText">Rescata civiles y limpia la casa</span>
+        </div>
+      </div>
+
+      <canvas id="gameCanvas" width="1280" height="720"></canvas>
+
+      <div id="touchControls">
+        <div id="movePad">
+          <div id="padBase"></div>
+          <div id="padKnob"></div>
+        </div>
+
+        <div id="actionButtons">
+          <button id="aimBtn">Apuntar</button>
+          <button id="shootBtn">Disparar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const menuScreen = document.getElementById('menuScreen');
+    const shopScreen = document.getElementById('shopScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const shopList = document.getElementById('shopList');
+
+    const playBtn = document.getElementById('playBtn');
+    const shopBtn = document.getElementById('shopBtn');
+    const quitBtn = document.getElementById('quitBtn');
+    const backBtn = document.getElementById('backBtn');
+
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const hudCoins = document.getElementById('hudCoins');
+    const hpDisplay = document.getElementById('hpDisplay');
+    const weaponDisplay = document.getElementById('weaponDisplay');
+    const allyDisplay = document.getElementById('allyDisplay');
+    const missionText = document.getElementById('missionText');
+    const coinsDisplay = document.getElementById('coinsDisplay');
+
+    const movePad = document.getElementById('movePad');
+    const padKnob = document.getElementById('padKnob');
+    const aimBtn = document.getElementById('aimBtn');
+    const shootBtn = document.getElementById('shootBtn');
+
+    const state = {
+      screen: 'menu',
+      coins: 250,
+      ownedWeapons: ['Pistol'],
+      ownedAllies: [],
+      currentWeapon: 'Pistol',
+      score: 0,
+      rescued: 0,
+      mission: 'Rescata civiles y limpia la casa',
+      gameOver: false,
+      levelComplete: false,
+      shootPressed: false,
+      aimPressed: false,
+      moveDir: 0,
+      aimY: -1,
+    };
+
+    const world = {
+      player: null,
+      bullets: [],
+      zombies: [],
+      civilians: [],
+      allies: [],
+      particles: [],
+      house: { x: 300, y: 120, w: 680, h: 420 },
+    };
+
+    const weapons = {
+      Pistol: { damage: 1, fireRate: 0.22, speed: 700 },
+      Rifle: { damage: 2, fireRate: 0.14, speed: 840 },
+      Shotgun: { damage: 4, fireRate: 0.46, speed: 620 },
+    };
+
+    const shopItems = [
+      { type: 'weapon', name: 'Pistol', cost: 0 },
+      { type: 'weapon', name: 'Rifle', cost: 120 },
+      { type: 'weapon', name: 'Shotgun', cost: 220 },
+      { type: 'ally', name: 'Medic', cost: 90 },
+      { type: 'ally', name: 'Sniper', cost: 180 },
+      { type: 'ally', name: 'Tank', cost: 260 },
+    ];
+
+    function showScreen(name) {
+      state.screen = name;
+      menuScreen.classList.toggle('active', name === 'menu');
+      shopScreen.classList.toggle('active', name === 'shop');
+      gameScreen.classList.toggle('active', name === 'game');
+    }
+
+    function renderShop() {
+      shopList.innerHTML = '';
+
+      shopItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'shop-item';
+
+        const title = document.createElement('strong');
+        title.textContent = item.name;
+
+        const btn = document.createElement('button');
+        btn.className = 'buy-btn';
+
+        const isOwned = item.type === 'weapon'
+          ? state.ownedWeapons.includes(item.name)
+          : state.ownedAllies.includes(item.name);
+
+        btn.textContent = isOwned ? 'Comprado' : `Comprar (${item.cost})`;
+        btn.disabled = isOwned || state.coins < item.cost;
+        btn.addEventListener('click', () => buyItem(item));
+
+        div.appendChild(title);
+        div.appendChild(btn);
+        shopList.appendChild(div);
+      });
+
+      coinsDisplay.textContent = state.coins;
+    }
+
+    function buyItem(item) {
+      if (item.type === 'weapon') {
+        if (state.ownedWeapons.includes(item.name)) return;
+        if (state.coins < item.cost) return;
+        state.coins -= item.cost;
+        state.ownedWeapons.push(item.name);
+        state.currentWeapon = item.name;
+      }
+
+      if (item.type === 'ally') {
+        if (state.ownedAllies.includes(item.name)) return;
+        if (state.coins < item.cost) return;
+        state.coins -= item.cost;
+        state.ownedAllies.push(item.name);
+      }
+
+      renderShop();
+      updateHud();
+    }
+
+    function startGame() {
+      resetWorld();
+      showScreen('game');
+    }
+
+    function resetWorld() {
+      state.score = 0;
+      state.rescued = 0;
+      state.levelComplete = false;
+      state.mission = 'Rescata civiles y limpia la casa';
+      state.gameOver = false;
+
+      world.player = {
+        x: 140,
+        y: 470,
+        w: 30,
+        h: 62,
+        hp: 100,
+        fireCooldown: 0,
+        speed: 230,
+        facing: 1,
+      };
+
+      world.bullets = [];
+      world.zombies = [];
+      world.civilians = [];
+      world.allies = [];
+      world.particles = [];
+
+      spawnZombies(7);
+      spawnCivilians(3);
+      spawnAllies();
+      updateHud();
+    }
+
+    function spawnZombies(count) {
+      for (let i = 0; i < count; i++) {
+        let type = 'common';
+        const roll = Math.random();
+        if (roll > 0.82) type = 'runner';
+        else if (roll > 0.65) type = 'tank';
+        else if (roll > 0.45) type = 'spitter';
+
+        const hp = type === 'tank' ? 8 : type === 'runner' ? 2 : type === 'spitter' ? 4 : 3;
+        world.zombies.push({
+          x: 620 + i * 80,
+          y: 470,
+          w: 26,
+          h: 52,
+          hp,
+          type,
+          speed: type === 'runner' ? 1.8 : type === 'tank' ? 0.9 : 1.2,
+          attackCooldown: 0,
+          color: type === 'runner' ? '#facc15' : type === 'tank' ? '#ef4444' : type === 'spitter' ? '#a855f7' : '#22c55e',
+        });
+      }
+    }
+
+    function spawnCivilians(count) {
+      for (let i = 0; i < count; i++) {
+        world.civilians.push({
+          x: 760 + i * 110,
+          y: 470,
+          w: 25,
+          h: 46,
+          rescued: false,
+          color: '#7dd3fc',
+        });
+      }
+    }
+
+    function spawnAllies() {
+      const names = state.ownedAllies.length ? state.ownedAllies : ['Medic'];
+      names.forEach((name, index) => {
+        const ally = {
+          name,
+          x: 200 + index * 70,
+          y: 470,
+          w: 26,
+          h: 50,
+          hp: 50,
+          personality: name === 'Tank' ? 'brave' : name === 'Sniper' ? 'cautious' : 'brave',
+          fear: 0,
+          talk: '',
+          abandoned: false,
+          color: name === 'Medic' ? '#4ade80' : name === 'Sniper' ? '#a78bfa' : '#fbbf24',
+        };
+        world.allies.push(ally);
+      });
+    }
+
+    function updateHud() {
+      scoreDisplay.textContent = state.score;
+      hudCoins.textContent = state.coins;
+      hpDisplay.textContent = world.player ? world.player.hp : 100;
+      weaponDisplay.textContent = state.currentWeapon;
+      allyDisplay.textContent = world.allies.filter(a => !a.abandoned).length;
+      missionText.textContent = state.mission;
+      coinsDisplay.textContent = state.coins;
+    }
+
+    function fireBullet(fromEnemy = false) {
+      const player = world.player;
+      const weapon = weapons[state.currentWeapon] || weapons.Pistol;
+
+      if (!fromEnemy) {
+        const dirX = player.facing;
+        const dirY = state.aimY;
+        world.bullets.push({
+          x: player.x + 24,
+          y: player.y + 20,
+          r: 7,
+          dirX,
+          dirY,
+          speed: weapon.speed,
+          damage: weapon.damage,
+          color: '#facc15',
+          enemy: false,
+        });
+        player.fireCooldown = weapon.fireRate;
+      }
+    }
+
+    function shootEnemyProjectile(z) {
+      world.bullets.push({
+        x: z.x,
+        y: z.y,
+        r: 8,
+        dirX: Math.sign(world.player.x - z.x) || 1,
+        dirY: 0,
+        speed: 260,
+        damage: 10,
+        color: '#a855f7',
+        enemy: true,
+      });
+    }
+
+    function updatePlayer() {
+      const p = world.player;
+      if (!p) return;
+
+      p.x += state.moveDir * p.speed * 0.016;
+      p.x = Math.max(40, Math.min(1180, p.x));
+
+      if (state.moveDir !== 0) p.facing = state.moveDir > 0 ? 1 : -1;
+
+      if (state.shootPressed && p.fireCooldown <= 0) {
+        fireBullet(false);
+      }
+
+      p.fireCooldown = Math.max(0, p.fireCooldown - 0.016);
+    }
+
+    function updateBullets() {
+      world.bullets.forEach(b => {
+        b.x += b.dirX * b.speed * 0.016;
+        b.y += b.dirY * b.speed * 0.016;
+      });
+
+      world.bullets = world.bullets.filter(b => {
+        if (b.enemy) {
+          if (Math.abs(b.x - world.player.x) < 18 && Math.abs(b.y - world.player.y) < 18) {
+            world.player.hp = Math.max(0, world.player.hp - b.damage);
+            spawnParticles(b.x, b.y, '#f472b6', 14);
+            return false;
+          }
+        } else {
+          for (let i = world.zombies.length - 1; i >= 0; i--) {
+            const z = world.zombies[i];
+            if (Math.abs(b.x - z.x) < 18 && Math.abs(b.y - z.y) < 18) {
+              z.hp -= b.damage;
+              spawnParticles(b.x, b.y, '#facc15', 8);
+              if (z.hp <= 0) {
+                world.zombies.splice(i, 1);
+                state.score += z.type === 'tank' ? 30 : z.type === 'runner' ? 20 : 15;
+              }
+              return false;
+            }
+          }
+        }
+        return b.x > -20 && b.x < 1300 && b.y > -20 && b.y < 760;
+      });
+    }
+
+    function updateZombies() {
+      world.zombies.forEach(z => {
+        if (!world.player) return;
+        const dx = world.player.x - z.x;
+        const dir = Math.sign(dx || 1);
+        z.x += dir * z.speed * 1.3;
+        z.attackCooldown = Math.max(0, z.attackCooldown - 0.016);
+
+        if (Math.abs(world.player.x - z.x) < 28 && z.attackCooldown <= 0) {
+          world.player.hp = Math.max(0, world.player.hp - (z.type === 'tank' ? 24 : z.type === 'runner' ? 16 : 10));
+          z.attackCooldown = z.type === 'runner' ? 0.7 : z.type === 'tank' ? 1.5 : 1.0;
+          spawnParticles(world.player.x, world.player.y, '#fb7185', 10);
+        }
+
+        if (z.type === 'spitter' && Math.abs(world.player.x - z.x) < 260 && Math.random() < 0.013) {
+          shootEnemyProjectile(z);
+        }
+      });
+    }
+
+    function updateCivilians() {
+      world.civilians.forEach(c => {
+        if (c.rescued) return;
+        if (Math.abs(world.player.x - c.x) < 30 && Math.abs(world.player.y - c.y) < 30) {
+          c.rescued = true;
+          state.rescued += 1;
+          state.score += 100;
+          state.coins += 50;
+          state.mission = 'Civil salvado';
+          spawnParticles(c.x, c.y, '#7dd3fc', 20);
+        }
+      });
+
+      if (!state.levelComplete && world.zombies.length === 0 && state.rescued >= 2) {
+        state.levelComplete = true;
+        state.mission = 'Casa limpia';
+        state.coins += 200;
+        state.score += 250;
+      }
+    }
+
+    function updateAllies() {
+      world.allies.forEach(a => {
+        if (a.abandoned) return;
+
+        const nearest = world.zombies.reduce((closest, z) => {
+          if (!closest) return z;
+          return Math.abs(a.x - z.x) < Math.abs(a.x - closest.x) ? z : closest;
+        }, null);
+
+        if (nearest) {
+          const dist = Math.abs(a.x - nearest.x);
+          if (dist < 200) {
+            a.fear = Math.min(100, a.fear + 2.4);
+          } else {
+            a.fear = Math.max(0, a.fear - 1.2);
+          }
+
+          if (a.name === 'Medic') {
+            if (world.player.hp < 70 && Math.abs(a.x - world.player.x) < 80) {
+              a.talk = '¡Te curo!';
+              world.player.hp = Math.min(100, world.player.hp + 2.2);
+            } else if (dist < 130) {
+              a.talk = a.personality === 'brave' ? '!A por ellos!' : 'Cuidado...';
+            }
+          }
+
+          if (a.name === 'Sniper' && dist > 120 && Math.random() < 0.035) {
+            a.talk = 'Punto limpio';
+            world.bullets.push({ x: a.x, y: a.y, r: 6, dirX: Math.sign(nearest.x - a.x) || 1, dirY: 0, speed: 760, damage: 2, color: '#c4b5fd', enemy: false });
+          }
+
+          if (a.name === 'Tank' && dist < 150 && Math.random() < 0.022) {
+            a.talk = '¡Carga!';
+          }
+        } else {
+          a.fear = Math.max(0, a.fear - 1.1);
+        }
+
+        if (a.fear > 90) {
+          a.abandoned = true;
+          a.talk = '¡Me voy!';
+        } else {
+          if (nearest) {
+            const dir = Math.sign(nearest.x - a.x) || 1;
+            a.x += dir * (a.name === 'Tank' ? 1.2 : a.name === 'Sniper' ? 0.8 : 1.0);
+          }
+          if (Math.random() < 0.02) {
+            a.talk = a.personality === 'brave' ? '¡Vamos! ¡No nos dan miedo!' : a.personality === 'cautious' ? 'Cuidado a la distancia' : '¿Seguro que esto es seguro?';
+          }
+        }
+      });
+    }
+
+    function updateParticles() {
+      world.particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 1;
+      });
+      world.particles = world.particles.filter(p => p.life > 0);
+    }
+
+    function spawnParticles(x, y, color, count) {
+      for (let i = 0; i < count; i++) {
+        world.particles.push({
+          x,
+          y,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6,
+          life: 18,
+          color,
+        });
+      }
+    }
+
+    function updateGame() {
+      if (state.screen !== 'game') return;
+      updatePlayer();
+      updateBullets();
+      updateZombies();
+      updateCivilians();
+      updateAllies();
+      updateParticles();
+
+      if (world.player.hp <= 0) {
+        state.mission = 'Has muerto, reiniciando nivel';
+        resetWorld();
+      }
+
+      updateHud();
+    }
+
+    function drawBackground() {
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#3b2f2a';
+      ctx.fillRect(0, 560, canvas.width, 160);
+
+      ctx.fillStyle = '#4b3b2f';
+      ctx.fillRect(world.house.x, world.house.y, world.house.w, world.house.h);
+
+      ctx.fillStyle = '#1f2937';
+      ctx.fillRect(350, 180, 110, 90);
+      ctx.fillRect(560, 180, 110, 90);
+      ctx.fillRect(770, 180, 110, 90);
+      ctx.fillRect(980, 180, 110, 90);
+    }
+
+    function drawPlayer() {
+      const p = world.player;
+      if (!p) return;
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(p.x, p.y, p.w, p.h);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(p.x + p.facing * 22, p.y + 22, 16, 6);
+    }
+
+    function drawBullets() {
+      world.bullets.forEach(b => {
+        ctx.fillStyle = b.color;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function drawZombies() {
+      world.zombies.forEach(z => {
+        ctx.fillStyle = z.color;
+        ctx.fillRect(z.x, z.y, z.w, z.h);
+        ctx.fillStyle = '#111';
+        ctx.fillRect(z.x, z.y - 8, z.w, 6);
+        ctx.fillStyle = '#4ade80';
+        ctx.fillRect(z.x, z.y - 8, z.w * (z.hp / (z.type === 'tank' ? 8 : z.type === 'runner' ? 2 : z.type === 'spitter' ? 4 : 3)), 6);
+      });
+    }
+
+    function drawCivilians() {
+      world.civilians.forEach(c => {
+        if (c.rescued) return;
+        ctx.fillStyle = c.color;
+        ctx.fillRect(c.x, c.y, c.w, c.h);
+      });
+    }
+
+    function drawAllies() {
+      world.allies.forEach(a => {
+        if (a.abandoned) return;
+        ctx.fillStyle = a.color;
+        ctx.fillRect(a.x, a.y, a.w, a.h);
+        if (a.talk) {
+          ctx.fillStyle = '#fff';
+          ctx.font = '12px Arial';
+          ctx.fillText(a.talk, a.x - 16, a.y - 16);
+        }
+      });
+    }
+
+    function drawParticles() {
+      world.particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, 4, 4);
+      });
+    }
+
+    function render() {
+      drawBackground();
+      drawPlayer();
+      drawBullets();
+      drawZombies();
+      drawCivilians();
+      drawAllies();
+      drawParticles();
+    }
+
+    function gameLoop() {
+      updateGame();
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function setupKeyboard() {
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') state.moveDir = -1;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') state.moveDir = 1;
+        if (e.code === 'ArrowUp' || e.code === 'KeyW') state.aimY = -1;
+        if (e.code === 'ArrowDown' || e.code === 'KeyS') state.aimY = 1;
+        if (e.code === 'Space') state.shootPressed = true;
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA' || e.code === 'ArrowRight' || e.code === 'KeyD') state.moveDir = 0;
+        if (e.code === 'Space') state.shootPressed = false;
+      });
+    }
+
+    function setupTouchControls() {
+      let dragging = false;
+      const padRect = movePad.getBoundingClientRect();
+
+      function updatePad(clientX, clientY) {
+        const x = clientX - padRect.left - 75;
+        const y = clientY - padRect.top - 75;
+        const clampedX = Math.max(-1, Math.min(1, x / 45));
+        const clampedY = Math.max(-1, Math.min(1, y / 45));
+
+        state.moveDir = clampedX;
+        state.aimY = clampedY < 0 ? -1 : 1;
+
+        const knobX = Math.max(-24, Math.min(24, x));
+        const knobY = Math.max(-24, Math.min(24, y));
+        padKnob.style.transform = `translate(${knobX}px, ${knobY}px)`;
+      }
+
+      movePad.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        movePad.setPointerCapture(e.pointerId);
+        updatePad(e.clientX, e.clientY);
+      });
+
+      movePad.addEventListener('pointermove', (e) => {
+        if (dragging) updatePad(e.clientX, e.clientY);
+      });
+
+      movePad.addEventListener('pointerup', () => {
+        dragging = false;
+        state.moveDir = 0;
+        state.aimY = -1;
+        padKnob.style.transform = 'translate(0px, 0px)';
+      });
+
+      movePad.addEventListener('pointerleave', () => {
+        dragging = false;
+        state.moveDir = 0;
+        padKnob.style.transform = 'translate(0px, 0px)';
+      });
+
+      aimBtn.addEventListener('pointerdown', () => { state.aimPressed = true; state.aimY = -1; });
+      aimBtn.addEventListener('pointerup', () => { state.aimPressed = false; });
+      aimBtn.addEventListener('pointerleave', () => { state.aimPressed = false; });
+
+      shootBtn.addEventListener('pointerdown', () => { state.shootPressed = true; });
+      shootBtn.addEventListener('pointerup', () => { state.shootPressed = false; });
+      shootBtn.addEventListener('pointerleave', () => { state.shootPressed = false; });
+    }
+
+    playBtn.addEventListener('click', startGame);
+    shopBtn.addEventListener('click', () => { showScreen('shop'); renderShop(); });
+    backBtn.addEventListener('click', () => showScreen('menu'));
+    quitBtn.addEventListener('click', () => window.close());
+
+    setupKeyboard();
+    setupTouchControls();
+    renderShop();
+    updateHud();
+    showScreen('menu');
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
